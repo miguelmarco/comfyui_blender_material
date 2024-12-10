@@ -12,7 +12,7 @@ from .presets import workflowjson
 
 url = 'http://127.0.0.1:8188'
 
-def send_job(prompt = 'brick texture', url=url, seed = 0, model='realisticVisionV51_v51VAE'):
+def send_job(prompt = 'brick texture', url=url, seed = 0, model='realisticVisionV51_v51VAE.safetensors'):
     workflow = json.loads(workflowjson)
     workflow['3']['inputs']['text'] = prompt
     workflow['6']['inputs']['seed'] = seed
@@ -63,11 +63,11 @@ def get_models(url):
 
 class ComfyUIProperties(bpy.types.PropertyGroup):
     url: bpy.props.StringProperty(name="URL", default="http://127.0.0.1:8188")
-    model: bpy.props.StringProperty(name="model", default="realisticVisionV51_v51VAE")
+    model: bpy.props.StringProperty(name="model", default="realisticVisionV51_v51VAE.safetensors")
     prompt: bpy.props.StringProperty(name="Prompt", default="brick texture")
     seed: bpy.props.IntProperty(name="Seed", default=0)
     status: bpy.props.StringProperty(name="Status", default="")
-    counter: bpy.props.IntProperty(name="Seed", default=0)
+    counter: bpy.props.IntProperty(name="counter", default=0)
 
 class ComfyUIOperator(bpy.types.Operator):
     bl_idname = "material.generate_with_comfyui"
@@ -77,7 +77,7 @@ class ComfyUIOperator(bpy.types.Operator):
         scene = context.scene
         mytool = scene.comfyui_tool
         try:
-            pid = send_job(mytool.prompt, mytool.url, mytool.seed)
+            pid = send_job(mytool.prompt, mytool.url, mytool.seed, mytool.model)
             def run_update():
                 status = get_status(pid, mytool.url)
                 mytool.status = status
@@ -139,7 +139,7 @@ class ComfyUIPanel(bpy.types.Panel):
         scene = context.scene
         mytool = scene.comfyui_tool
         layout.prop(mytool, "url")
-        layout.model(mytool, "model")
+        layout.prop(mytool, "model")
         layout.prop(mytool, "seed")
         layout.prop(mytool, "prompt")
         props = layout.operator("material.generate_with_comfyui")
